@@ -109,13 +109,19 @@ echo ""
 
 echo -e "${CYAN}Cloning project from GitHub...${RESET}"
 cd /root
-if [ -d ".git" ]; then
-    echo -e "${YELLOW}Git repository already exists, pulling latest changes...${RESET}"
-    git pull
-else
-    git clone $REPO_URL .
-fi
-echo -e "${GREEN}✓ Project cloned successfully!${RESET}"
+
+# إنشاء مجلد مؤقت للـ clone
+TEMP_DIR="/tmp/bot_temp_$$"
+git clone $REPO_URL $TEMP_DIR
+
+echo -e "${CYAN}Copying files to /root/...${RESET}"
+# نسخ كل الملفات من المجلد المؤقت (يستبدل أي ملفات موجودة)
+cp -rf $TEMP_DIR/. /root/
+
+# حذف المجلد المؤقت
+rm -rf $TEMP_DIR
+
+echo -e "${GREEN}✓ Project files copied successfully!${RESET}"
 echo ""
 
 # ---------------------- إنشاء ملف info.py ----------------------
