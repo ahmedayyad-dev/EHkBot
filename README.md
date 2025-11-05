@@ -44,11 +44,12 @@ Licensed under Custom Proprietary License
 
 ## Requirements
 
+- **Operating System**: Debian 12 or Debian 13 (**REQUIRED**)
 - **Python**: 3.10.12 (automatically installed by the setup script)
-- **Redis**: For data storage
-- **Screen**: For managing bot instances
-- **Operating System**: Linux (Debian/Ubuntu recommended)
+- **Redis**: For data storage (automatically installed)
+- **Screen**: For managing bot instances (automatically installed)
 - **Root Access**: Required for installation
+- **Internet Connection**: Stable connection required for installation
 
 ---
 
@@ -175,7 +176,9 @@ After successful installation:
 
 ## Important Notes
 
-1. **License Verification**: This software includes built-in license verification. Do not attempt to modify or remove it. Using the software without a valid license violates the terms of service.
+1. **Operating System Requirement**: This software is designed and tested ONLY on **Debian 12 or Debian 13**. Other Linux distributions (Ubuntu, CentOS, etc.) are NOT supported and may cause installation failures or unexpected errors.
+
+2. **License Verification**: This software includes built-in license verification. Do not attempt to modify or remove it. Using the software without a valid license violates the terms of service.
 
 2. **RapidAPI Subscription**: You MUST maintain an active subscription to the [YouTube to Telegram Uploader API](https://rapidapi.com/ahmedyad200/api/youtube-to-telegram-uploader-api). The bot will not function without a valid subscription and API key.
 
@@ -196,7 +199,7 @@ After successful installation:
 ### Installation Issues
 
 If the installation fails:
-1. Make sure you're running as root
+1. Make sure you're running as root: `sudo su`
 2. Ensure you have a stable internet connection
 3. Check that all required information is correct
 4. Contact support if issues persist
@@ -206,6 +209,8 @@ If the installation fails:
 If the bot doesn't start:
 1. Check the screen session: `screen -r MainBot`
 2. Verify your license key is valid
+3. Ensure RapidAPI subscription is active
+4. Check logs for error messages
 
 ### Need Help?
 
