@@ -63,118 +63,46 @@ echo ""
 
 # ---------------------- جمع معلومات info.py ----------------------
 
-# إعادة توجيه stdin للـ terminal لكل الـ input operations
-exec < /dev/tty
-
 echo -e "${CYAN}==================================================================${RESET}"
 echo -e "${GREEN}       Welcome to Telegram Bot Factory Installation       ${RESET}"
 echo -e "${CYAN}==================================================================${RESET}"
 echo ""
-echo -e "${YELLOW}Please provide the following information to configure your bot:${RESET}"
-echo ""
 
-# طلب FBotToken
-while true; do
+if [ -f "$INFO_FILE" ]; then
+    echo -e "${GREEN}Found existing info.py. Using saved credentials...${RESET}"
+    echo ""
+else
+    echo -e "${YELLOW}Please provide the following information to configure your bot:${RESET}"
+    echo ""
+
     echo -e "${CYAN}Enter your Bot Token (from @BotFather):${RESET}"
-    read -r -p "> " FBOT_TOKEN
-    FBOT_TOKEN=$(echo "$FBOT_TOKEN" | xargs)
-    if [ -z "$FBOT_TOKEN" ]; then
-        echo -e "${RED}Error: Bot Token cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " FBOT_TOKEN
 
-# طلب owner_id
-while true; do
     echo -e "${CYAN}Enter your Telegram User ID:${RESET}"
-    read -r -p "> " OWNER_ID
-    OWNER_ID=$(echo "$OWNER_ID" | xargs)
-    if [ -z "$OWNER_ID" ]; then
-        echo -e "${RED}Error: User ID cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " OWNER_ID
 
-# طلب rapidapi_key
-while true; do
     echo -e "${CYAN}Enter your RapidAPI Key:${RESET}"
     echo -e "${YELLOW}(Subscribe at: https://rapidapi.com/ahmedyad200/api/youtube-to-telegram-uploader-api)${RESET}"
-    read -r -p "> " RAPIDAPI_KEY
-    RAPIDAPI_KEY=$(echo "$RAPIDAPI_KEY" | xargs)
-    if [ -z "$RAPIDAPI_KEY" ]; then
-        echo -e "${RED}Error: RapidAPI Key cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " RAPIDAPI_KEY
 
-# طلب LICENSE_KEY
-while true; do
     echo -e "${CYAN}Enter your License Key:${RESET}"
     echo -e "${YELLOW}(Contact: ahmedyad200@gmail.com or @Ayyad on Telegram)${RESET}"
-    read -r -p "> " LICENSE_KEY
-    LICENSE_KEY=$(echo "$LICENSE_KEY" | xargs)
-    if [ -z "$LICENSE_KEY" ]; then
-        echo -e "${RED}Error: License Key cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " LICENSE_KEY
 
-# طلب channel
-while true; do
     echo -e "${CYAN}Enter your Telegram Channel username (without @):${RESET}"
-    read -r -p "> " CHANNEL
-    CHANNEL=$(echo "$CHANNEL" | xargs)
-    if [ -z "$CHANNEL" ]; then
-        echo -e "${RED}Error: Channel username cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " CHANNEL
+    CHANNEL=$(echo "$CHANNEL" | sed 's/@//g')
 
-# طلب api_id
-while true; do
     echo -e "${CYAN}Enter your API ID (from my.telegram.org):${RESET}"
-    read -r -p "> " API_ID
-    API_ID=$(echo "$API_ID" | xargs)
-    if [ -z "$API_ID" ]; then
-        echo -e "${RED}Error: API ID cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " API_ID
 
-# طلب api_hash
-while true; do
     echo -e "${CYAN}Enter your API Hash (from my.telegram.org):${RESET}"
-    read -r -p "> " API_HASH
-    API_HASH=$(echo "$API_HASH" | xargs)
-    if [ -z "$API_HASH" ]; then
-        echo -e "${RED}Error: API Hash cannot be empty!${RESET}"
-        echo ""
-    else
-        break
-    fi
-done
-echo ""
+    read -p "> " API_HASH
 
-echo -e "${GREEN}✓ All information collected successfully!${RESET}"
-echo ""
+    echo ""
+    echo -e "${GREEN}✓ All information collected successfully!${RESET}"
+    echo ""
+fi
 
 # ---------------------- Clone المشروع ----------------------
 
