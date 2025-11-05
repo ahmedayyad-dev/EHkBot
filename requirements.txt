@@ -1,0 +1,10 @@
+pyrofork
+tgcrypto-pyrofork
+py-tgcalls
+pyTelegramBotAPI
+redis[hiredis]
+aiohttp
+Pillow
+git+https://github.com/ahmedayyad-dev/Ayyad-APIs.git
+git+https://github.com/ahmedayyad-dev/youtube-search-python-fork.git
+gitpython
