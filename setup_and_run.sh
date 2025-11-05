@@ -34,6 +34,28 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# التحقق من إصدار ديبيان
+if [ -f /etc/debian_version ]; then
+    DEBIAN_VERSION=$(cat /etc/debian_version)
+    if [[ "$DEBIAN_VERSION" =~ ^([0-9]+) ]]; then
+        DEBIAN_MAJOR_VERSION=${BASH_REMATCH[1]}
+        echo -e "${BLUE}Detected Debian version: $DEBIAN_VERSION${RESET}"
+    fi
+fi
+
+# ---------------------- تحديث النظام وتثبيت الحزم ----------------------
+
+echo -e "${CYAN}Updating and upgrading system...${RESET}"
+apt update && apt full-upgrade -y
+
+echo -e "${CYAN}Installing build dependencies...${RESET}"
+apt install -y build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev curl git \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
+libffi-dev liblzma-dev redis-server ffmpeg screen unzip
+
+echo ""
+
 # ---------------------- جمع معلومات info.py ----------------------
 
 echo -e "${CYAN}==================================================================${RESET}"
@@ -114,26 +136,6 @@ EOF
 
 echo -e "${GREEN}✓ info.py created successfully!${RESET}"
 echo ""
-
-# التحقق من إصدار ديبيان
-if [ -f /etc/debian_version ]; then
-    DEBIAN_VERSION=$(cat /etc/debian_version)
-    if [[ "$DEBIAN_VERSION" =~ ^([0-9]+) ]]; then
-        DEBIAN_MAJOR_VERSION=${BASH_REMATCH[1]}
-        echo -e "${BLUE}Detected Debian version: $DEBIAN_VERSION${RESET}"
-    fi
-fi
-
-# ---------------------- تحديث النظام وتثبيت الحزم ----------------------
-
-echo -e "${CYAN}Updating and upgrading system...${RESET}"
-apt update && apt full-upgrade -y
-
-echo -e "${CYAN}Installing build dependencies...${RESET}"
-apt install -y build-essential libssl-dev zlib1g-dev \
-libbz2-dev libreadline-dev libsqlite3-dev curl git \
-libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
-libffi-dev liblzma-dev redis-server ffmpeg screen unzip
 
 # ---------------------- تثبيت pyenv ----------------------
 
