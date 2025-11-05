@@ -24,6 +24,8 @@ REQUIREMENTS_FILE="/root/requirements.txt"
 PYTHON_SCRIPT="/root/main.py"
 SCREEN_SESSION_NAME="MainBot"
 BASHRC="/root/.bashrc"
+INFO_FILE="/root/info.py"
+REPO_URL="https://github.com/ahmedayyad-dev/EHkBot.git"
 
 # ---------------------- التحقق من الصلاحيات ----------------------
 
@@ -31,6 +33,87 @@ if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}Please run as root using sudo!${RESET}"
     exit 1
 fi
+
+# ---------------------- جمع معلومات info.py ----------------------
+
+echo -e "${CYAN}==================================================================${RESET}"
+echo -e "${GREEN}       Welcome to Telegram Bot Factory Installation       ${RESET}"
+echo -e "${CYAN}==================================================================${RESET}"
+echo ""
+echo -e "${YELLOW}Please provide the following information to configure your bot:${RESET}"
+echo ""
+
+# طلب FBotToken
+echo -e "${CYAN}Enter your Bot Token (from @BotFather):${RESET}"
+read -p "> " FBOT_TOKEN
+echo ""
+
+# طلب owner_id
+echo -e "${CYAN}Enter your Telegram User ID:${RESET}"
+read -p "> " OWNER_ID
+echo ""
+
+# طلب rapidapi_key
+echo -e "${CYAN}Enter your RapidAPI Key:${RESET}"
+echo -e "${YELLOW}(Subscribe at: https://rapidapi.com/ahmedyad200/api/youtube-to-telegram-uploader-api)${RESET}"
+read -p "> " RAPIDAPI_KEY
+echo ""
+
+# طلب LICENSE_KEY
+echo -e "${CYAN}Enter your License Key:${RESET}"
+echo -e "${YELLOW}(Contact: ahmedyad200@gmail.com or @Ayyad on Telegram)${RESET}"
+read -p "> " LICENSE_KEY
+echo ""
+
+# طلب channel
+echo -e "${CYAN}Enter your Telegram Channel username (without @):${RESET}"
+read -p "> " CHANNEL
+echo ""
+
+# طلب api_id
+echo -e "${CYAN}Enter your API ID (from my.telegram.org):${RESET}"
+read -p "> " API_ID
+echo ""
+
+# طلب api_hash
+echo -e "${CYAN}Enter your API Hash (from my.telegram.org):${RESET}"
+read -p "> " API_HASH
+echo ""
+
+echo -e "${GREEN}✓ All information collected successfully!${RESET}"
+echo ""
+
+# ---------------------- Clone المشروع ----------------------
+
+echo -e "${CYAN}Cloning project from GitHub...${RESET}"
+cd /root
+if [ -d ".git" ]; then
+    echo -e "${YELLOW}Git repository already exists, pulling latest changes...${RESET}"
+    git pull
+else
+    git clone $REPO_URL .
+fi
+echo -e "${GREEN}✓ Project cloned successfully!${RESET}"
+echo ""
+
+# ---------------------- إنشاء ملف info.py ----------------------
+
+echo -e "${CYAN}Creating info.py configuration file...${RESET}"
+cat > $INFO_FILE << EOF
+# info.py - Bot Configuration
+# Copyright © 2025 Ahmed Ayyad (ahmedyad200). All rights reserved.
+
+FBotToken = '$FBOT_TOKEN'
+owner_id = $OWNER_ID
+rapidapi_key = '$RAPIDAPI_KEY'
+LICENSE_KEY = '$LICENSE_KEY'
+channel = '$CHANNEL'
+api_id = $API_ID
+api_hash = '$API_HASH'
+EOF
+
+echo -e "${GREEN}✓ info.py created successfully!${RESET}"
+echo ""
 
 # التحقق من إصدار ديبيان
 if [ -f /etc/debian_version ]; then
@@ -161,12 +244,16 @@ screen -dmS $SCREEN_SESSION_NAME bash -c "source $VENV_PATH/bin/activate && pyth
 echo -e "${GREEN}Screen session '$SCREEN_SESSION_NAME' created successfully!${RESET}"
 echo -e "${BLUE}To attach to the session, use: screen -r $SCREEN_SESSION_NAME${RESET}"
 
-# ---------------------- Cleanup ----------------------
-echo -e "${MAGENTA}Cleaning up...${RESET}"
-rm -- "$0"
-
 # ---------------------- النهاية ----------------------
+echo ""
+echo -e "${CYAN}==================================================================${RESET}"
 echo -e "${GREEN}Setup completed successfully!${RESET}"
+echo -e "${CYAN}==================================================================${RESET}"
 echo -e "${CYAN}Virtual environment: $VENV_PATH${RESET}"
 echo -e "${CYAN}Python version in venv: $VENV_PYTHON_VERSION${RESET}"
 echo -e "${CYAN}Screen session: $SCREEN_SESSION_NAME${RESET}"
+echo -e "${CYAN}Configuration file: $INFO_FILE${RESET}"
+echo ""
+echo -e "${GREEN}Your bot is now running!${RESET}"
+echo -e "${YELLOW}Use 'screen -r $SCREEN_SESSION_NAME' to view the bot logs.${RESET}"
+echo ""
