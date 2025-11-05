@@ -94,7 +94,7 @@ Before installation, you **MUST** purchase a license key from the developer:
 Run this single command as root to install everything automatically:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/ahmedayyad-dev/EHkBot/refs/heads/master/setup_and_run.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/ahmedayyad-dev/EHkBot/refs/heads/master/setup_and_run.sh)
 ```
 
 The installation script will:
