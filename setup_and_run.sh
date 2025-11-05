@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
-
 # ---------------------- المتغيرات ----------------------
 
 # وضع non-interactive لتثبيت الحزم
@@ -47,12 +44,20 @@ fi
 
 echo -e "${CYAN}Updating and upgrading system...${RESET}"
 apt update && apt full-upgrade -y
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Failed to update system. Please check your internet connection.${RESET}"
+    exit 1
+fi
 
 echo -e "${CYAN}Installing build dependencies...${RESET}"
 apt install -y build-essential libssl-dev zlib1g-dev \
 libbz2-dev libreadline-dev libsqlite3-dev curl git \
 libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
 libffi-dev liblzma-dev redis-server ffmpeg screen unzip
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Failed to install dependencies.${RESET}"
+    exit 1
+fi
 
 echo ""
 
