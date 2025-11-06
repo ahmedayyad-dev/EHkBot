@@ -123,6 +123,14 @@ rm -rf $TEMP_DIR
 echo -e "${GREEN}✓ Project files copied successfully!${RESET}"
 echo ""
 
+# ---------------------- Clone Template Bot ----------------------
+
+echo -e "${CYAN}Cloning Template Bot...${RESET}"
+cd /root
+git clone https://github.com/ahmedayyad-dev/Template-Bot-for-EHkBot ahmedyad200
+echo -e "${GREEN}✓ Template Bot cloned successfully!${RESET}"
+echo ""
+
 # ---------------------- إنشاء ملف info.py ----------------------
 
 echo -e "${CYAN}Creating info.py configuration file...${RESET}"
