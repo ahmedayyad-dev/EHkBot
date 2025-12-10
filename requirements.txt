@@ -4,6 +4,7 @@ py-tgcalls
 pyTelegramBotAPI
 redis[hiredis]
 aiohttp
+aiofiles
 Pillow
 git+https://github.com/ahmedayyad-dev/Ayyad-APIs.git
 git+https://github.com/ahmedayyad-dev/youtube-search-python-fork.git

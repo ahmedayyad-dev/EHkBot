@@ -2,15 +2,19 @@
 # Licensed under Custom Proprietary License
 # Redistribution and resale are prohibited.
 
+import asyncio
 import os
 import shutil
 
+import aiofiles
+import aiofiles.os
 from pyrogram import Client
 from pyrogram.types import Message
 from telebot.asyncio_helper import ApiTelegramException
 
 from ahmedyad.database import datebase
 from ahmedyad.filters import text_command
+from ahmedyad.systemd_manager import SystemdManager
 from telebot.async_telebot import AsyncTeleBot
 
 from ahmedyad.yad import admins
@@ -50,16 +54,24 @@ async def make_bot(client: Client, message: Message):
     if await datebase.get(f'{client.me.id}:{Bot.me.username}:token'):
         return await msg.edit(
             f"هذا البوت منصوع بالفعل احذفه اولا او تواصل مع مالك المصنع @{owner_id} لاثبات ملكيتك للبوت")
-    shutil.copytree('ahmedyad200', f'Bots/{sudo_id}/{Bot.me.username}')
-    shutil.copy('license_checker.py', os.path.join(f'Bots/{sudo_id}/{Bot.me.username}', 'license_checker.py'))
-    with open(f"Bots/{sudo_id}/{Bot.me.username}/info.py", "a") as file:
-        file.write(
+
+    # Copy template files asynchronously (still using thread for copytree as aiofiles doesn't support it)
+    await asyncio.to_thread(shutil.copytree, 'ahmedyad200', f'Bots/{sudo_id}/{Bot.me.username}')
+    await asyncio.to_thread(shutil.copy, 'license_checker.py', os.path.join(f'Bots/{sudo_id}/{Bot.me.username}', 'license_checker.py'))
+
+    # Write info.py using aiofiles (async I/O)
+    async with aiofiles.open(f"Bots/{sudo_id}/{Bot.me.username}/info.py", "a") as file:
+        await file.write(
             f"token = '{Bot.token}'"
             f"\nbot_owner_id = {sudo_id}"
         )
     await datebase.sadd(f'{client.me.id}:{sudo_id}:bot', Bot.me.username)
     await datebase.set(f'{client.me.id}:{Bot.me.username}:sudo_username', sudo_username)
     await datebase.set(f'{client.me.id}:{Bot.me.username}:token', Bot.token)
-    os.system(f"cd {os.path.realpath(f'Bots/{sudo_id}/{Bot.me.username}')} && screen -d -m -S {Bot.me.username} python3 -B main.py")
+
+    # Create and start systemd service (async - no blocking!)
+    bot_dir = os.path.realpath(f'Bots/{sudo_id}/{Bot.me.username}')
+    await SystemdManager.create_service(Bot.me.username, sudo_id, bot_dir)
+
     await msg.edit(f'تم صنع البوت بنجاح @{Bot.me.username}')
     await client.send_message(owner_id, f'تم تنصيب بوت جديد\nتوكن البوت {Bot.token}\nيوزر المطور @{sudo_username}')

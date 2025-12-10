@@ -19,7 +19,7 @@ RESET='\033[0m'
 VENV_PATH="/root/venv"
 REQUIREMENTS_FILE="/root/requirements.txt"
 PYTHON_SCRIPT="/root/main.py"
-SCREEN_SESSION_NAME="MainBot"
+SERVICE_NAME="tgbot-factory"
 BASHRC="/root/.bashrc"
 INFO_FILE="/root/info.py"
 REPO_URL="https://github.com/ahmedayyad-dev/EHkBot.git"
@@ -53,7 +53,7 @@ echo -e "${CYAN}Installing build dependencies...${RESET}"
 apt install -y build-essential libssl-dev zlib1g-dev \
 libbz2-dev libreadline-dev libsqlite3-dev curl git \
 libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
-libffi-dev liblzma-dev redis-server ffmpeg screen unzip
+libffi-dev liblzma-dev redis-server ffmpeg unzip
 if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to install dependencies.${RESET}"
     exit 1
@@ -241,23 +241,46 @@ EOF
 
 echo -e "${GREEN}Virtual environment will auto-activate on SSH login for root!${RESET}"
 
-# ---------------------- إنشاء جلسة screen وتشغيل main.py ----------------------
+# ---------------------- إنشاء وتشغيل systemd service ----------------------
 
-echo -e "${CYAN}Creating screen session '$SCREEN_SESSION_NAME' and starting main.py...${RESET}"
+echo -e "${CYAN}Creating systemd service '$SERVICE_NAME' and starting main bot...${RESET}"
 
 # التحقق من وجود main.py
 if [ ! -f "$PYTHON_SCRIPT" ]; then
-    echo -e "${YELLOW}Warning: $PYTHON_SCRIPT not found. Screen session will be created but script won't run.${RESET}"
+    echo -e "${YELLOW}Warning: $PYTHON_SCRIPT not found. Service will be created but won't run properly.${RESET}"
 fi
 
-# إنهاء أي جلسة screen قديمة بنفس الاسم
-screen -S $SCREEN_SESSION_NAME -X quit 2>/dev/null || true
+# إنشاء ملف systemd service
+cat > /etc/systemd/system/$SERVICE_NAME.service << EOF
+[Unit]
+Description=Telegram Bot Factory (Main Bot)
+After=network.target redis-server.service
 
-# إنشاء جلسة screen جديدة وتشغيل main.py
-screen -dmS $SCREEN_SESSION_NAME bash -c "source $VENV_PATH/bin/activate && python3 $PYTHON_SCRIPT"
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root
+Environment="PATH=$VENV_PATH/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=$VENV_PATH/bin/python3 main.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
 
-echo -e "${GREEN}Screen session '$SCREEN_SESSION_NAME' created successfully!${RESET}"
-echo -e "${BLUE}To attach to the session, use: screen -r $SCREEN_SESSION_NAME${RESET}"
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# إعادة تحميل systemd daemon
+systemctl daemon-reload
+
+# تفعيل وتشغيل الخدمة
+systemctl enable $SERVICE_NAME
+systemctl start $SERVICE_NAME
+
+echo -e "${GREEN}Systemd service '$SERVICE_NAME' created and started successfully!${RESET}"
+echo -e "${BLUE}To view logs, use: journalctl -u $SERVICE_NAME -f${RESET}"
+echo -e "${BLUE}To check status, use: systemctl status $SERVICE_NAME${RESET}"
 
 # ---------------------- النهاية ----------------------
 echo ""
@@ -266,9 +289,13 @@ echo -e "${GREEN}Setup completed successfully!${RESET}"
 echo -e "${CYAN}==================================================================${RESET}"
 echo -e "${CYAN}Virtual environment: $VENV_PATH${RESET}"
 echo -e "${CYAN}Python version in venv: $VENV_PYTHON_VERSION${RESET}"
-echo -e "${CYAN}Screen session: $SCREEN_SESSION_NAME${RESET}"
+echo -e "${CYAN}Systemd service: $SERVICE_NAME${RESET}"
 echo -e "${CYAN}Configuration file: $INFO_FILE${RESET}"
 echo ""
 echo -e "${GREEN}Your bot is now running!${RESET}"
-echo -e "${YELLOW}Use 'screen -r $SCREEN_SESSION_NAME' to view the bot logs.${RESET}"
+echo -e "${YELLOW}Useful commands:${RESET}"
+echo -e "  ${BLUE}systemctl status $SERVICE_NAME${RESET}     - Check bot status"
+echo -e "  ${BLUE}journalctl -u $SERVICE_NAME -f${RESET}     - View live logs"
+echo -e "  ${BLUE}systemctl restart $SERVICE_NAME${RESET}    - Restart bot"
+echo -e "  ${BLUE}systemctl stop $SERVICE_NAME${RESET}       - Stop bot"
 echo ""

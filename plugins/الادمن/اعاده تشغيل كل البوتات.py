@@ -7,6 +7,7 @@ import os
 from pyrogram import Client
 
 from ahmedyad.filters import text_command
+from ahmedyad.systemd_manager import SystemdManager
 
 
 @Client.on_message(text_command('اعاده تشغيل بوت', admin=True))
@@ -16,10 +17,8 @@ async def restart_bot(client, message):
 
     for user_id in os.listdir('Bots'):
         for bot_username in os.listdir(f'Bots/{user_id}'):
-            os.system(
-                f'screen -ls | grep {bot_username} | cut -d. -f1 | awk \'{{print $1}}\' | xargs -I{{}} screen -X -S {{}} quit')
-            os.system(
-                f"cd {os.path.realpath(f'Bots/{user_id}/{bot_username}')} && screen -d -m -S {bot_username} python3 -B main.py")
+            # Restart systemd service (async - no blocking!)
+            await SystemdManager.restart_service(bot_username)
             restarted_bots.append(bot_username)
 
     bots_list = '\n'.join(restarted_bots) if restarted_bots else 'لا يوجد بوتات'

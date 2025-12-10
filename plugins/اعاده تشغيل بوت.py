@@ -9,6 +9,7 @@ from pyrogram.types import ReplyKeyboardMarkup
 
 from ahmedyad.filters import text_command
 from ahmedyad.keyboards import cancel_key
+from ahmedyad.systemd_manager import SystemdManager
 from ahmedyad.yad import get_user_id, get_user_bots
 
 
@@ -27,7 +28,8 @@ async def restart_bot(client, message):
         bot_username = Bots.pop()
     else:
         return await message.reply('لا يوجد لديك اي بوتات علي المصنع')
-    os.system(f'screen -ls | grep {bot_username} | cut -d. -f1 | awk \'{{print $1}}\' | xargs -I{{}} screen -X -S {{}} quit')
-    os.system(f"cd {os.path.realpath(f'Bots/{user_id}/{bot_username}')} && screen -d -m -S {bot_username} python3 -B main.py")
+
+    # Restart systemd service (async - no blocking!)
+    await SystemdManager.restart_service(bot_username)
     await message.reply(f'تم اعاده تشغيل البوت : @{bot_username}')
 

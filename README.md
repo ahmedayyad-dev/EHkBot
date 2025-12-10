@@ -10,7 +10,7 @@ This project consists of two main components:
 - **Master Bot (Factory)**: Takes bot tokens from users and creates bot instances
 - **Template Bot**: The bot template that gets copied for each new instance
 
-Each bot instance runs independently using screen sessions on your server.
+Each bot instance runs independently as a systemd service on your server.
 
 ---
 
@@ -47,7 +47,7 @@ Licensed under Custom Proprietary License
 - **Operating System**: Debian 12 or Debian 13 (**REQUIRED**)
 - **Python**: 3.10.12 (automatically installed by the setup script)
 - **Redis**: For data storage (automatically installed)
-- **Screen**: For managing bot instances (automatically installed)
+- **systemd**: For managing bot instances (built into Debian)
 - **Root Access**: Required for installation
 - **Internet Connection**: Stable connection required for installation
 
@@ -113,7 +113,7 @@ The installation script will:
    - Install Python 3.10.12 using pyenv
    - Set up a virtual environment
    - Install all required dependencies
-   - Start the bot in a screen session
+   - Create and start the bot as a systemd service
 
 ### What You Need Before Installation:
 
@@ -130,35 +130,53 @@ The installation script will:
 
 ### Checking Bot Status
 
-The bot runs in a screen session called `MainBot`. To view it:
+The main bot runs as a systemd service. To check its status:
 
 ```bash
-screen -r MainBot
+systemctl status tgbot-factory
 ```
-
-To detach from the screen session: Press `Ctrl + A`, then `D`
 
 ### Managing Bot Instances
 
-List all running screen sessions:
+View live logs from the main bot:
 ```bash
-screen -ls
+journalctl -u tgbot-factory -f
 ```
 
-Attach to a specific bot instance:
+Check status of a specific bot instance:
 ```bash
-screen -r [session_name]
+systemctl status tgbot-[bot_username]
+```
+
+List all bot services:
+```bash
+systemctl list-units --type=service | grep tgbot
 ```
 
 ### Restarting the Bot
 
-If you need to restart the bot:
+To restart the main bot:
 
 ```bash
-screen -S MainBot -X quit  # Stop the current session
-cd /root
-source venv/bin/activate
-screen -dmS MainBot python3 main.py
+systemctl restart tgbot-factory
+```
+
+To restart a specific bot instance:
+
+```bash
+systemctl restart tgbot-[bot_username]
+```
+
+To stop the main bot:
+
+```bash
+systemctl stop tgbot-factory
+```
+
+To start the main bot:
+
+```bash
+systemctl start tgbot-factory
 ```
 
 ---
@@ -167,10 +185,12 @@ screen -dmS MainBot python3 main.py
 
 After successful installation:
 
-1. The bot will be running automatically in a screen session
+1. The bot will be running automatically as a systemd service
 2. Virtual environment will activate automatically on SSH login
 3. All configurations are saved in `/root/info.py`
-4. Bot logs can be viewed by attaching to the screen session
+4. Bot logs can be viewed using `journalctl -u tgbot-factory -f`
+5. The bot will automatically start on server reboot
+6. The bot will automatically restart if it crashes
 
 ---
 
@@ -207,10 +227,11 @@ If the installation fails:
 ### Bot Not Starting
 
 If the bot doesn't start:
-1. Check the screen session: `screen -r MainBot`
-2. Verify your license key is valid
-3. Ensure RapidAPI subscription is active
-4. Check logs for error messages
+1. Check the service status: `systemctl status tgbot-factory`
+2. View the logs: `journalctl -u tgbot-factory -n 50`
+3. Verify your license key is valid
+4. Ensure RapidAPI subscription is active
+5. Check for error messages in the logs
 
 ### Need Help?
 
