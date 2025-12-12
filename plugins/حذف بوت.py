@@ -25,5 +25,10 @@ async def delete_Bot(client: Client, message: Message):
         bot_username = Bots.pop()
     else:
         return await message.reply('لا يوجد لديك اي بوتات علي المصنع')
-    await delete_bot(bot_username, user_id)
-    await message.reply('تم حذف البوت بنجاح')
+
+    # Delete bot with error handling
+    success, msg_text = await delete_bot(bot_username, user_id)
+    if success:
+        await message.reply(f'✅ {msg_text}')
+    else:
+        await message.reply(f'❌ {msg_text}')

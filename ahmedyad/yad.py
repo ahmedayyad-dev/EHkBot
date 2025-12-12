@@ -48,14 +48,31 @@ async def get_user_bots(user_id: int) -> list:
 
 
 async def delete_bot(bot_username, user_id):
-    # Stop and delete systemd service (async - no blocking!)
-    await SystemdManager.delete_service(bot_username)
-    await sleep(2)
-    await datebase.srem(f'{Bot.me.id}:{user_id}:bot', bot_username)
-    await datebase.delete(f'{Bot.me.id}:{bot_username}:token')
-    await datebase.delete(f'{Bot.me.id}:{bot_username}:sudo_username')
-    # Delete directory asynchronously using thread (aiofiles doesn't have rmtree)
-    await asyncio.to_thread(shutil.rmtree, f'Bots/{user_id}/{bot_username}')
+    """
+    Delete a bot instance with proper error handling
+
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+    try:
+        # Stop and delete systemd service (async - no blocking!)
+        await SystemdManager.delete_service(bot_username)
+        await sleep(2)
+
+        # Remove from Redis
+        await datebase.srem(f'{Bot.me.id}:{user_id}:bot', bot_username)
+        await datebase.delete(f'{Bot.me.id}:{bot_username}:token')
+        await datebase.delete(f'{Bot.me.id}:{bot_username}:sudo_username')
+
+        # Delete directory asynchronously using thread (aiofiles doesn't have rmtree)
+        bot_path = f'Bots/{user_id}/{bot_username}'
+        if os.path.exists(bot_path):
+            await asyncio.to_thread(shutil.rmtree, bot_path)
+
+        return True, "تم حذف البوت بنجاح"
+    except Exception as e:
+        print(f"Error deleting bot {bot_username}: {e}")
+        return False, f"حدث خطأ أثناء حذف البوت: {str(e)}"
 
 class CommandCancel(Exception):
     pass
