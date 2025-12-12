@@ -62,8 +62,8 @@ async def make_bot(client: Client, message: Message):
     # Write info.py using aiofiles (async I/O)
     async with aiofiles.open(f"Bots/{sudo_id}/{Bot.me.username}/info.py", "a") as file:
         await file.write(
-            f"token = '{Bot.token}'"
-            f"\nbot_owner_id = {sudo_id}"
+            f"\ntoken = '{Bot.token}'"
+            f"\nbot_owner_id = {sudo_id}\n"
         )
     await datebase.sadd(f'{client.me.id}:{sudo_id}:bot', Bot.me.username)
     await datebase.set(f'{client.me.id}:{Bot.me.username}:sudo_username', sudo_username)
